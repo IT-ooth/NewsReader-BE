@@ -19,7 +19,7 @@ pipeline {
                 script {
                     // 1. 기존 컨테이너 중지 및 최신 이미지 빌드 후 실행
                     // -d: 백그라운드 실행, --build: 이미지 강제 재빌드
-                    sh "docker compose up --build -d"
+                    sh "docker-compose up --build -d"
                 }
             }
         }
