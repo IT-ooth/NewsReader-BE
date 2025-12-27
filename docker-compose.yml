@@ -27,7 +27,7 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      - db
+      db:
         condition: service_healthy
     environment:
       DATABASE_URL: postgresql://postgres:postgres@db:5432/security_curator
@@ -41,7 +41,8 @@ services:
     container_name: security_worker
     command: python -m workers.scraper_bot
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       DATABASE_URL: postgresql://postgres:postgres@db:5432/security_curator
       OLLAMA_HOST: http://host.docker.internal:11434
