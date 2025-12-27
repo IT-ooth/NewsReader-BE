@@ -2,9 +2,9 @@ pipeline {
     agent any
 
     tools {
-        dockerTool 'my-docker'
+        docker 'my-docker'
     }
-    
+
     environment {
         // 프로젝트 경로 설정
         PROJECT_DIR = "2025_SecurityCurator"
