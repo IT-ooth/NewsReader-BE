@@ -30,25 +30,20 @@ def run_curation_loop():
         with Session(engine) as session:
             for scraper in scrapers:
                 try:
-                    # 1. 스크래퍼로부터 ArticleScraped(DTO) 리스트를 가져옴
                     scraped_items = scraper.collect(session) 
                     
                     for item in scraped_items:
-                        # 이미 분석까지 완료된 기사인지 확인
                         if services.is_already_analyzed(session, item.url):
                             continue
                             
                         print(f"📰 처리 중: {item.title}")
 
-                        # 2. DB에 Article(저장용)이 없다면 먼저 저장
                         db_article = services.get_article_by_url(session, item.url)
                         if not db_article:
                             db_article = services.save_article(session, item)
-                        
-                        # 3. AI 분석 진행 (DTO인 item에는 content가 있음!)
+                    
                         try:
-                            print(f"🤖 AI 분석 중... (GPU 사용 예정)")
-                            # item은 ArticleScraped이므로 .content 접근 가능
+                            print(f"🤖 AI 분석 중...")
                             analysis_data = analyzer.analyze(item) 
                             
                             if analysis_data:

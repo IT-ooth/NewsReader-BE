@@ -4,7 +4,7 @@ from .base import BaseAnalyzer
 from db.models import ArticleScraped, AnalysisData, Category, Theme, Level
 
 class OllamaAnalyzer(BaseAnalyzer):
-    def __init__(self, model_name: str = "llama3:8B", prompt_version: int = 1):
+    def __init__(self, model_name: str = "llama3:8B", prompt_version: str = 'v1'):
         self.model_name = model_name
         self.prompt_version = prompt_version
 
