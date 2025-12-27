@@ -24,7 +24,7 @@ class GeekNewsScraper(BaseScraper):
                 source="GeekNews",
                 published_at=entry.get('published')
             )
-            for entry in ff.entries
+            for entry in ff
         ]
         
         return results
