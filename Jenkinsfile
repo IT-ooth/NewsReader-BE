@@ -14,8 +14,8 @@ pipeline {
                     // sh "docker rm -f news-reader-be || true"
                     // sh "docker build -t news-reader-be:latest ."
                     // sh "docker run -d --name news-reader-be -p 8000:8000 news-reader-be:latest"
-                    sh "docker compose down || true"
-                    sh "docker compose up --build -d"
+                    sh "docker-compose down || true"
+                    sh "docker-compose up --build -d"
                 }
             }
         }
