@@ -14,6 +14,18 @@ pipeline {
                     // sh "docker rm -f news-reader-be || true"
                     // sh "docker build -t news-reader-be:latest ."
                     // sh "docker run -d --name news-reader-be -p 8000:8000 news-reader-be:latest"
+                    
+                    sh """
+                        if ! command -v docker-compose &> /dev/null; then
+                            echo "docker-compose not found. Downloading..."
+                            curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-\$(uname -s)-\$(uname -m)" -o ./docker-compose
+                            chmod +x ./docker-compose
+                        else
+                            echo "docker-compose already exists."
+                            cp \$(command -v docker-compose) ./docker-compose
+                        fi
+                    """
+
                     sh "docker-compose down || true"
                     sh "docker-compose up --build -d"
                 }
