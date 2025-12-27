@@ -30,30 +30,35 @@ def run_curation_loop():
         with Session(engine) as session:
             for scraper in scrapers:
                 try:
-                    scraper.collect(session)
+                    # 1. 스크래퍼로부터 ArticleScraped(DTO) 리스트를 가져옴
+                    scraped_items = scraper.collect(session) 
+                    
+                    for item in scraped_items:
+                        # 이미 분석까지 완료된 기사인지 확인
+                        if services.is_already_analyzed(session, item.url):
+                            continue
+                            
+                        print(f"📰 처리 중: {item.title}")
+
+                        # 2. DB에 Article(저장용)이 없다면 먼저 저장
+                        db_article = services.get_article_by_url(session, item.url)
+                        if not db_article:
+                            db_article = services.save_article(session, item)
+                        
+                        # 3. AI 분석 진행 (DTO인 item에는 content가 있음!)
+                        try:
+                            print(f"🤖 AI 분석 중... (GPU 사용 예정)")
+                            # item은 ArticleScraped이므로 .content 접근 가능
+                            analysis_data = analyzer.analyze(item) 
+                            
+                            if analysis_data:
+                                services.save_analysis(session, db_article.id, analysis_data)
+                                print(f"✅ 분석 완료 및 저장 성공")
+                        except Exception as e:
+                            print(f"❌ 분석 실패 (ID: {db_article.id}): {e}")
+
                 except Exception as e:
                     print(f"❌ 스크래퍼 오류: {e}")
-
-            print("🔍 분석 대기 중인 기사 확인 중...")
-            pending_articles = services.get_articles_without_analysis(session)
-            
-            if not pending_articles:
-                print("✨ 모든 기사가 분석되었습니다.")
-            
-            for article in pending_articles:
-                try:
-                    print(f"🤖 AI 분석 중... (ID: {article.id} | {article.title[:20]}...)")
-                    analysis_data = analyzer.analyze(article)
-                    
-                    if analysis_data:
-                        services.save_analysis(session, article.id, analysis_data)
-                        session.commit()
-                        print(f"✅ 분석 완료 및 저장 성공")
-                    else:
-                        print(f"⚠️ 분석 실패 (결과 없음): {article.id}")
-                except Exception as e:
-                    print(f"❌ 분석 중 에러 발생 (ID: {article.id}): {e}")
-                    continue
 
         print("\n💤 대기 중 (1분 뒤 다시 확인)...")
         time.sleep(60)

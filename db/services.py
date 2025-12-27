@@ -41,6 +41,13 @@ def save_analysis(session: Session, article_id: int, analysis_data: AnalysisData
         print(f"❌ 분석 결과 저장 실패 (기사 ID {article_id}): {e}")
         return None
     
-def get_articles_without_analysis(session: Session):
-    statement = select(Article).where(Article.analysis == None) 
-    return session.exec(statement).all()
+def is_already_analyzed(session: Session, url: str) -> bool:
+    # URL로 Article을 찾고, 그 Article에 연결된 Analysis가 있는지 확인
+    statement = select(Article).where(Article.url == url)
+    article = session.exec(statement).first()
+    if article and article.analysis:
+        return True
+    return False
+
+def get_article_by_url(session: Session, url: str):
+    return session.exec(select(Article).where(Article.url == url)).first()
