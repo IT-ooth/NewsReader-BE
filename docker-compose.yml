@@ -6,8 +6,8 @@ services:
     container_name: security_db
     restart: always
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
       POSTGRES_DB: security_curator
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
@@ -24,7 +24,7 @@ services:
     depends_on:
       - db
     environment:
-      DATABASE_URL: postgresql://user:password@db:5432/security_curator
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/security_curator
       OLLAMA_HOST: http://host.docker.internal:11434
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -37,7 +37,7 @@ services:
     depends_on:
       - db
     environment:
-      DATABASE_URL: postgresql://user:password@db:5432/security_curator
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/security_curator
       OLLAMA_HOST: http://host.docker.internal:11434
     extra_hosts:
       - "host.docker.internal:host-gateway"
