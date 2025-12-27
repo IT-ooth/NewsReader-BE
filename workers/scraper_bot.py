@@ -18,7 +18,7 @@ def run_curation_loop():
         # BoanNewsScraper('http://www.boannews.com/media/news_rss.xml?skind=3'),
         # BoanNewsScraper('http://www.boannews.com/media/news_rss.xml?skind=2'),
         # BoanNewsScraper('http://www.boannews.com/media/news_rss.xml?skind=6'),
-        # GeekNewsScraper('https://news.hada.io/rss/news'),
+        GeekNewsScraper('https://news.hada.io/rss/news'),
     ]
     analyzer = OllamaAnalyzer(model_name="llama3.1:8b")
 
@@ -54,8 +54,8 @@ def run_curation_loop():
                 except Exception as e:
                     print(f"❌ 스크래퍼({scraper.__class__.__name__}) 작동 오류: {e}")
         
-        print("\n💤 대기 중 (10분 뒤 다시 확인)...")
-        time.sleep(6000)
+        print("\n💤 대기 중 (1분 뒤 다시 확인)...")
+        time.sleep(60)
 
 if __name__ == "__main__":
     run_curation_loop()
