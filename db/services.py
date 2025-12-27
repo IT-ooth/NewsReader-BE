@@ -1,0 +1,42 @@
+from sqlmodel import Session, select
+from .models import Article, Analysis, ArticleScraped, AnalysisData
+
+from datetime import datetime
+
+def is_article_exists(session: Session, url:str) -> bool:
+    """URL 기준으로 기사 중복 체크"""
+    statement = select(Article).where(Article.url == url)
+    results = session.exec(statement).first()
+    return results is not None
+
+def save_article(session: Session, scraped_item: ArticleScraped) -> Article:
+    """기사 정보를 저장하고 즉시 커밋하여 독립적인 원자성을 보장합니다."""
+    try:
+        db_article = Article.model_validate(scraped_item)
+        session.add(db_article)
+        session.commit()
+        session.refresh(db_article)
+        return db_article
+    except Exception as e:
+        session.rollback()
+        print(f"❌ 기사 저장 실패: {e}")
+        raise
+
+def save_analysis(session: Session, article_id: int, analysis_data: AnalysisData) -> Analysis:
+    """분석 결과만 별도의 트랜잭션으로 저장합니다."""
+    try:
+        db_analysis = Analysis.model_validate(
+            analysis_data,
+            update={
+                    "article_id": article_id,
+                    "created_at": datetime.now()
+                }
+        )
+        session.add(db_analysis)
+        session.commit()
+        session.refresh(db_analysis)
+        return db_analysis
+    except Exception as e:
+        session.rollback()
+        print(f"❌ 분석 결과 저장 실패 (기사 ID {article_id}): {e}")
+        return None
