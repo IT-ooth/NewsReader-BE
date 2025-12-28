@@ -56,7 +56,6 @@ class Analysis(AnalysisData, table=True):
     
     
 # VIEW 설정
-
 class CardView(SQLModel):
     # Article 필드
     source: str

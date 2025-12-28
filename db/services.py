@@ -1,8 +1,8 @@
 from sqlmodel import Session, select
-from .models import Article, Analysis, ArticleScraped, AnalysisData, CardView
+from .models import *
 
 from datetime import datetime
-
+from typing import Optional
 def is_article_exists(session: Session, url:str) -> bool:
     """URL 기준으로 기사 중복 체크"""
     statement = select(Article).where(Article.url == url)
@@ -52,19 +52,24 @@ def is_already_analyzed(session: Session, url: str) -> bool:
 def get_article_by_url(session: Session, url: str):
     return session.exec(select(Article).where(Article.url == url)).first()
 
-def get_article_summaries(session: Session):
-    """두 테이블을 JOIN 하여 카드 구성에 필요한 필드만 선택"""
+def get_card_view_list(
+    session: Session, 
+    category: Optional[Category] = None, 
+    level: Optional[Level] = None, 
+    offset: int = 0,
+    limit: int = 20
+):
+    """DB에서 필터링된 카드 뉴스 데이터를 가져오는 핵심 로직"""
     statement = select(
-        Article.source,
-        Article.url,
-        Article.title,
-        Analysis.summary,
-        Analysis.themes,
-        Analysis.level,
-        Analysis.category
+        Article.source, Article.url, Article.title,
+        Analysis.summary, Analysis.themes, Analysis.level, Analysis.category
     ).join(Analysis, Article.id == Analysis.article_id)
 
-    results = session.exec(statement).all()
+    if category:
+        statement = statement.where(Analysis.category == category)
+    if level:
+        statement = statement.where(Analysis.level == level)
+
+    statement = statement.order_by(Analysis.created_at.desc()).offset(offset).limit(limit)
     
-    # 결과를 ArticleListView 리스트로 변환
-    return [CardView.model_validate(row) for row in results]
+    return session.exec(statement).all()
