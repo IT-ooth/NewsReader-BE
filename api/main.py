@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends, Query
 from sqlmodel import Session, select, col
 from typing import List, Optional
 from db.connection import engine
-from db.models import Article, Analysis
+from db.models import Article, Analysis, CardView
 
 app = FastAPI(title="Security Curator API", version="v1")
 
@@ -53,3 +53,14 @@ def get_analysis_results(
     statement = select(Analysis).order_by(Analysis.created_at.desc()).limit(10)
     results = session.exec(statement).all()
     return results
+
+# 4. GET /v1/cardnews - 카드 뉴스
+@app.get("/v1/cardnews", response_model=List[CardView])
+def read_dashboard(session: Session = Depends(get_session)):
+    """카드 뉴스 구성 요소를 한꺼번에 가져옵니다."""
+    statement = select(
+        Article.source, Article.url, Article.title,
+        Analysis.summary, Analysis.themes, Analysis.level, Analysis.category
+    ).join(Analysis)
+    
+    return session.exec(statement).all()

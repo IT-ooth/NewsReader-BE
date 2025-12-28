@@ -53,3 +53,22 @@ class Analysis(AnalysisData, table=True):
     
     article_id: int = Field(foreign_key="article.id")
     article: Optional[Article] = Relationship(back_populates="analysis")
+    
+    
+# VIEW 설정
+
+class CardView(SQLModel):
+    # Article 필드
+    source: str
+    url: str
+    title: str
+    
+    # Analysis 필드
+    summary: str
+    themes: str
+    level: Level
+    category: Category
+
+    class Config:
+        # DB 객체를 이 모델로 바로 변환할 수 있게 설정
+        from_attributes = True

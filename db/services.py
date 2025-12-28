@@ -1,5 +1,5 @@
 from sqlmodel import Session, select
-from .models import Article, Analysis, ArticleScraped, AnalysisData
+from .models import Article, Analysis, ArticleScraped, AnalysisData, CardView
 
 from datetime import datetime
 
@@ -51,3 +51,20 @@ def is_already_analyzed(session: Session, url: str) -> bool:
 
 def get_article_by_url(session: Session, url: str):
     return session.exec(select(Article).where(Article.url == url)).first()
+
+def get_article_summaries(session: Session):
+    """두 테이블을 JOIN 하여 카드 구성에 필요한 필드만 선택"""
+    statement = select(
+        Article.source,
+        Article.url,
+        Article.title,
+        Analysis.summary,
+        Analysis.themes,
+        Analysis.level,
+        Analysis.category
+    ).join(Analysis, Article.id == Analysis.article_id)
+
+    results = session.exec(statement).all()
+    
+    # 결과를 ArticleListView 리스트로 변환
+    return [CardView.model_validate(row) for row in results]
