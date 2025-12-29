@@ -55,8 +55,8 @@ def run_curation_loop():
                 except Exception as e:
                     print(f"❌ 스크래퍼 오류: {e}")
 
-        print("\n💤 대기 중 (1분 뒤 다시 확인)...")
-        time.sleep(60)
+        print("\n💤 대기 중 (10분 뒤 다시 확인)...")
+        time.sleep(600)
 
 if __name__ == "__main__":
     run_curation_loop()
