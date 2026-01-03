@@ -4,9 +4,10 @@ metadata:
   name: news-reader-ingress
   namespace: jenkins
   annotations:
-    kubernetes.io/ingress.class: nginx
+    kubernetes.io/ingress.class: traefik
     nginx.ingress.kubernetes.io/use-forwarded-headers: "true"
 spec:
+  ingressClassName: traefik
   rules:
   - host: api.danyeon.cloud
     http:
