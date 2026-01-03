@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: news-reader-Ingress
+  namespace: jenkins
+  annotations:
+    # Nginx Ingress Controller를 쓴다고 명시
+    kubernetes.io/ingress.class: nginx
+    # (선택) 접속 로그에 실제 IP가 찍히게 하려면 필요할 수 있음
+    nginx.ingress.kubernetes.io/use-forwarded-headers: "true"
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: news-reader-api-service # 👈 아까 kubectl get svc로 본 그 이름!
+            port:
+              number: 80                  # 👈 서비스의 내부 포트 (30265 아님!)

@@ -45,6 +45,7 @@ pipeline {
                         sh "kubectl apply -f k8s/postgres.yaml"
                         sh "sleep 5"
                         sh "kubectl apply -f k8s/backend.yaml"
+                        sh "kubectl apply -f k8s/ingress.yaml"
                         
                         sh "kubectl rollout restart deployment/news-reader-api"
                         sh "kubectl rollout restart deployment/news-reader-worker"
