@@ -21,7 +21,7 @@ spec:
       containers:
       - name: api
         # 젠킨스가 빌드해서 올릴 이미지 이름 (본인 ID로 수정 필요!)
-        image: <본인_DOCKER_ID>/news-reader-be:latest
+        image: soo1278/news-reader-be:latest
         command: ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
         ports:
         - containerPort: 8000
@@ -67,7 +67,7 @@ spec:
         - "host.docker.internal"
       containers:
       - name: worker
-        image: <본인_DOCKER_ID>/news-reader-be:latest
+        image: soo1278/news-reader-be:latest
         command: ["python", "-m", "workers.scraper_bot"]
         env:
         - name: DATABASE_URL
