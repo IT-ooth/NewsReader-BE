@@ -1,0 +1,75 @@
+# --- 1. API 서버 ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: news-reader-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: news-reader-api
+  template:
+    metadata:
+      labels:
+        app: news-reader-api
+    spec:
+      # 호스트의 Ollama에 접근하기 위한 설정 (host.docker.internal을 172.17.0.1로 매핑)
+      hostAliases:
+      - ip: "172.17.0.1" # K3s 기본 브리지 IP (안 되면 실제 서버 IP 입력)
+        hostnames:
+        - "host.docker.internal"
+      containers:
+      - name: api
+        # 젠킨스가 빌드해서 올릴 이미지 이름 (본인 ID로 수정 필요!)
+        image: <본인_DOCKER_ID>/news-reader-be:latest
+        command: ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+        ports:
+        - containerPort: 8000
+        env:
+        - name: DATABASE_URL
+          # 'db' 대신 위에서 만든 Service 이름인 'postgres-service' 사용
+          value: "postgresql://postgres:postgres@postgres-service:5432/security_curator"
+        - name: OLLAMA_HOST
+          value: "http://host.docker.internal:11434"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: news-reader-api-service
+spec:
+  selector:
+    app: news-reader-api
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
+
+# --- 2. Worker (Scraper) ---
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: news-reader-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: news-reader-worker
+  template:
+    metadata:
+      labels:
+        app: news-reader-worker
+    spec:
+      hostAliases:
+      - ip: "172.17.0.1"
+        hostnames:
+        - "host.docker.internal"
+      containers:
+      - name: worker
+        image: <본인_DOCKER_ID>/news-reader-be:latest
+        command: ["python", "-m", "workers.scraper_bot"]
+        env:
+        - name: DATABASE_URL
+          value: "postgresql://postgres:postgres@postgres-service:5432/security_curator"
+        - name: OLLAMA_HOST
+          value: "http://host.docker.internal:11434"
