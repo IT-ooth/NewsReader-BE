@@ -42,11 +42,14 @@ pipeline {
                     script {
                         echo "🚀 K3s 배포 시작..."
                         
-                        sh "kubectl apply -f k8s/postgres.yaml"
-                        sh "sleep 5"
-                        sh "kubectl apply -f k8s/backend.yaml"
-                        sh "kubectl apply -f k8s/ingress.yaml"
+                        // sh "kubectl apply -f k8s/postgres.yaml"
+                        // sh "sleep 5"
+                        // sh "kubectl apply -f k8s/api-cors-middleware.yaml"
+                        // sh "kubectl apply -f k8s/backend.yaml"
+                        // sh "kubectl apply -f k8s/ingress.yaml"
                         
+                        sh "kubectl apply -f k8s/"
+
                         sh "kubectl rollout restart deployment/news-reader-api"
                         sh "kubectl rollout restart deployment/news-reader-worker"
                     }

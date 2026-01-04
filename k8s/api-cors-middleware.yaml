@@ -1,0 +1,26 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: api-cors
+  namespace: jenkins
+spec:
+  cors:
+    # 1. 허용할 원본(Origin) 목록
+    # Traefik 미들웨어 리스트에는 정규식을 직접 쓸 수 없으므로 자주 쓰는 주소를 넣거나, 
+    # 혹은 accessControlAllowOriginListRegex를 사용해야 합니다.
+    accessControlAllowOriginList:
+      - "http://news.danyeon.cloud"
+      - "https://news.danyeon.cloud"
+    # localhost의 모든 포트를 허용하기 위한 정규식 설정
+    accessControlAllowOriginListRegex:
+      - "^https?://(localhost|127\\.0\\.0\\.1)(:\\d+)?$"
+    accessControlAllowMethods:
+      - "GET"
+      - "POST"
+      - "PUT"
+      - "DELETE"
+      - "OPTIONS"
+    accessControlAllowHeaders:
+      - "*"
+    accessControlMaxAge: 100
+    addVaryHeader: true
