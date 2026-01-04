@@ -1,11 +1,26 @@
 from fastapi import FastAPI, Depends, Query
+from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import Session, select, col
 from typing import List, Optional
 from db.connection import engine
 from db.models import Article, Analysis, CardView
 from db.services import *
 
-app = FastAPI(title="Security Curator API", version="v1")
+app = FastAPI(title="news-reader API", version="v1")
+
+origins = [
+    "http://news.danyeon.cloud",
+    "https://news.danyeon.cloud",
+    "http://localhost",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # DB 세션 의존성
 def get_session():
