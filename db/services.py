@@ -3,6 +3,7 @@ from .models import *
 
 from datetime import datetime
 from typing import Optional
+
 def is_article_exists(session: Session, url:str) -> bool:
     """URL 기준으로 기사 중복 체크"""
     statement = select(Article).where(Article.url == url)

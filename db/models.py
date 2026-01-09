@@ -71,3 +71,9 @@ class CardView(SQLModel):
     class Config:
         # DB 객체를 이 모델로 바로 변환할 수 있게 설정
         from_attributes = True
+
+class CardNewsRequest(SQLModel):
+    category: Optional[Category] = None
+    level: Optional[Level] = None
+    offset: int = Field(default=0, ge=0)
+    limit: int = Field(default=20, le=100)
