@@ -1,4 +1,4 @@
-apiVersion: traefik.containo.us/v1alpha1
+apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
   name: redirect-to-https
@@ -7,3 +7,9 @@ spec:
   redirectScheme:
     scheme: https
     permanent: true
+
+  headers:
+    stsSeconds: 31536000        # 1년 동안 HTTPS 강제
+    stsIncludeSubdomains: true  # 서브도메인 포함
+    stsPreload: true
+    forceSTSHeader: true
