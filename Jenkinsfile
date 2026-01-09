@@ -49,7 +49,7 @@ pipeline {
                         // sh "kubectl apply -f k8s/ingress.yaml"
                         
                         sh "kubectl apply -f k8s/"
-
+                        sh "kubectl set image deployment/news-reader-api api=$DOCKER_HUB_ID/$APP_NAME:${BUILD_NUMBER}"
                         sh "kubectl rollout restart deployment/news-reader-api"
                         sh "kubectl rollout restart deployment/news-reader-worker"
                     }

@@ -4,7 +4,6 @@ metadata:
   name: api-cors
   namespace: jenkins
 spec:
-  # 중요: CORS 설정은 'headers' 미들웨어의 한 기능입니다.
   headers:
     accessControlAllowOriginList:
       - "http://news.danyeon.cloud"
@@ -12,11 +11,7 @@ spec:
     accessControlAllowOriginListRegex:
       - "^https?://(localhost|127\\.0\\.0\\.1)(:\\d+)?$"
     accessControlAllowMethods:
-      - "GET"
       - "POST"
-      - "PUT"
-      - "DELETE"
-      - "OPTIONS"
     accessControlAllowHeaders:
       - "*"
     accessControlMaxAge: 100
