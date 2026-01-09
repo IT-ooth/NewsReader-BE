@@ -37,7 +37,7 @@ kind: Service
 metadata:
   name: news-reader-api-service
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   selector:
     app: news-reader-api
   ports:

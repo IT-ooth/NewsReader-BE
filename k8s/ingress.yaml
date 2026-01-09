@@ -5,11 +5,15 @@ metadata:
   namespace: jenkins
   annotations:
     kubernetes.io/ingress.class: traefik
-    traefik.ingress.kubernetes.io/router.entrypoints: web
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
     traefik.ingress.kubernetes.io/router.middlewares: jenkins-api-cors@kubernetescrd
-    nginx.ingress.kubernetes.io/use-forwarded-headers: "true"
 spec:
   ingressClassName: traefik
+  tls:
+  - hosts:
+    - api.danyeon.cloud
+    secretName: api-tls-secret
   rules:
   - host: api.danyeon.cloud
     http:
