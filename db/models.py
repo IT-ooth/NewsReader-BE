@@ -46,7 +46,7 @@ class Analysis(AnalysisData, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     created_at: datetime = Field(default_factory=datetime.now)
     
-    article_id: int = Field(foreign_key="article.id")
+    article_id: int = Field(foreign_key="article.id", unique=True)
     article: Optional[Article] = Relationship(back_populates="analysis")
     
     
