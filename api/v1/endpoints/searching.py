@@ -17,9 +17,9 @@ def search_any_themes(
         search_type: 2 -> all search
     """
     if req.search_type == 1:
-        return search_articles_by_any_themes(session, req.themes, req.offset, req.limit)
+        return search_articles_by_any_themes(session, req)
     elif req.search_type == 2:
-        return search_articles_by_all_themes(session, req.themes, req.offset, req.limit)
+        return search_articles_by_all_themes(session, req)
     else:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
