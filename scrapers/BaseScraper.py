@@ -1,4 +1,4 @@
-from db.models import ArticleScraped
+from db.models import Article
 
 from abc import ABC, abstractmethod
 from bs4 import BeautifulSoup
@@ -15,7 +15,7 @@ class BaseScraper(ABC):
         self.period = period
 
     @abstractmethod
-    def collect(self, session: Session) -> List[ArticleScraped]:
+    def collect(self, session: Session) -> List[Article]:
         """RSS 또는 크롤링을 통해 전문을 가져오는 추상 메서드"""
         pass
 

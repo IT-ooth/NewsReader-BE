@@ -1,4 +1,4 @@
-from db.models import ArticleScraped
+from db.models import Article
 from db.services import is_article_exists
 from .BaseScraper import BaseScraper
 
@@ -8,7 +8,7 @@ import feedparser
 
 class GeekNewsScraper(BaseScraper):
 
-    def collect(self, session: Session) -> List[ArticleScraped]:
+    def collect(self, session: Session) -> List[Article]:
         feed = feedparser.parse(self.url)
         
         ff = [
@@ -17,7 +17,7 @@ class GeekNewsScraper(BaseScraper):
         ]
         
         results = [
-            ArticleScraped(
+            Article(
                 title=entry.title,
                 url=entry.link,
                 content=self._scrap_body(entry.link),

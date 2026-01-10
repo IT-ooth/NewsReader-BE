@@ -24,20 +24,15 @@ class Theme(StrEnum):
     GENERAL_IT = "General IT"
 
 
-class ArticleBase(SQLModel):
+class Article(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
     title: str
     url: str = Field(index=True, unique=True)
     source: str
     published_at: Optional[datetime] = None
-
-class Article(ArticleBase, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    
+    content: str
     # 관계 설정
     analysis: Optional["Analysis"] = Relationship(back_populates="article")
-
-class ArticleScraped(ArticleBase):
-    content: str
 
 class AnalysisData(SQLModel):
     category: Category

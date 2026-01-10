@@ -1,4 +1,4 @@
-from db.models import ArticleScraped
+from db.models import Article
 from db.services import is_article_exists
 from .BaseScraper import BaseScraper
 # from scrapers.BaseScraper import BaseScraper
@@ -11,7 +11,7 @@ import re
 
 class S2WScraper(BaseScraper):
 
-    def collect(self, session: Session) -> List[ArticleScraped]:
+    def collect(self, session: Session) -> List[Article]:
         print("S2WScraper 작동 시작")
         feed = feedparser.parse(self.url)
         results = []
@@ -28,7 +28,7 @@ class S2WScraper(BaseScraper):
                 content = self._common_clean(content_html)
                 print("S2WScaper content: ", content)
 
-            results.append(ArticleScraped(
+            results.append(Article(
                 title=entry.title,
                 url=entry.link,
                 content=self._clean_html(content),

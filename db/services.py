@@ -12,7 +12,7 @@ def is_article_exists(session: Session, url:str) -> bool:
     results = session.exec(statement).first()
     return results is not None
 
-def save_article(session: Session, scraped_item: ArticleScraped) -> Article:
+def save_article(session: Session, scraped_item: Article) -> Article:
     """기사 정보를 저장하고 즉시 커밋하여 독립적인 원자성을 보장합니다."""
     try:
         db_article = Article.model_validate(scraped_item)
