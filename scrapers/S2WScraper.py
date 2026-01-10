@@ -12,10 +12,12 @@ import re
 class S2WScraper(BaseScraper):
 
     def collect(self, session: Session) -> List[ArticleScraped]:
+        print("S2WScraper 작동 시작")
         feed = feedparser.parse(self.url)
         results = []
         
         for entry in feed.entries:
+            print("S2WScraper feed 분석")
             if is_article_exists(session, entry.link):
                 continue
             
@@ -24,6 +26,7 @@ class S2WScraper(BaseScraper):
             if hasattr(entry, 'content'):
                 content_html = entry.content[0].value
                 content = self._common_clean(content_html)
+                print("S2WScaper content: ", content)
 
             results.append(ArticleScraped(
                 title=entry.title,
@@ -62,8 +65,8 @@ class S2WScraper(BaseScraper):
         text = re.sub(r'\n\s*\n+', '\n\n', text)
         return text.strip()[:16000]
 
-# if __name__ == "__main__":
-#     s = S2WScraper()
-#     session = Session()
-#     for i in s.collect(session):
-#         print(i)
+if __name__ == "__main__":
+    s = S2WScraper(100)
+    session = Session()
+    for i in s.collect(session):
+        print(i)
