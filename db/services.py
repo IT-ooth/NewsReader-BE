@@ -102,17 +102,20 @@ def get_active_themes(session: Session) -> List[str]:
 def search_articles_by_any_themes(session: Session, req: ThemeSearchRequest):
     """입력된 테마 중 하나라도 포함되는 기사를 반환하는 로직"""
     statement = select(
-        Article.source, Article.url, Article.title,
-        Analysis.summary, Analysis.themes, Analysis.level, Analysis.category
+        Article.source, Article.url, Article.title,Analysis.summary,
+        Analysis.themes, Analysis.level, Analysis.category
     ).join(Analysis, Article.id == Analysis.article_id)
 
     if req.themes:
-        # 각 테마에 대해 OR 조건 생성
         filters = [Analysis.themes.contains(theme.strip()) for theme in req.themes]
         statement = statement.where(or_(*filters))
 
     statement = statement.order_by(Analysis.created_at.desc()).offset(req.offset).limit(req.limit)
-    return session.exec(statement).all()
+    
+    results = session.exec(statement).all()
+    
+    return [CardView.model_validate(row) for row in results]
+
 
 def search_articles_by_all_themes(session: Session, req: ThemeSearchRequest):
     """입력된 모든 테마가 포함된 기사만 반환하는 로직"""
@@ -122,9 +125,11 @@ def search_articles_by_all_themes(session: Session, req: ThemeSearchRequest):
     ).join(Analysis, Article.id == Analysis.article_id)
 
     if req.themes:
-        # 각 테마에 대해 AND 조건 생성
         filters = [Analysis.themes.contains(theme.strip()) for theme in req.themes]
         statement = statement.where(and_(*filters))
 
     statement = statement.order_by(Analysis.created_at.desc()).offset(req.offset).limit(req.limit)
-    return session.exec(statement).all()
+    
+    results = session.exec(statement).all()
+    
+    return [CardView.model_validate(row) for row in results]
