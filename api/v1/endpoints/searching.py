@@ -7,7 +7,7 @@ from db.services import search_articles_by_all_themes, search_articles_by_any_th
 
 router = APIRouter()
 
-@router.get("/articles/search/theme")
+@router.post("/articles/search/theme")
 def search_any_themes(
     req: ThemeSearchRequest,
     session: Session = Depends(get_session)
