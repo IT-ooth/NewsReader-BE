@@ -90,12 +90,12 @@ def get_card_view_list(
 
 def get_active_themes(session: Session) -> List[str]:
     """DB에 존재하는 테마를 반환하는 로직"""
-    query = """
+    query = text("""
         SELECT DISTINCT TRIM(unnested_theme) AS theme
         FROM analysis, unnest(string_to_array(themes, ',')) AS unnested_theme
         WHERE themes IS NOT NULL AND themes != ''
         ORDER  BY theme ASC
-    """
+    """)
     results = session.execute(query).all()
     return [row[0] for row in results]
 
