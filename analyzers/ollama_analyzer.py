@@ -1,14 +1,14 @@
 import json
 import ollama
 from .base import BaseAnalyzer
-from db.models import ArticleScraped, AnalysisData, Category, Theme, Level
+from db.models import Article, AnalysisData, Category, Theme, Level
 
 class OllamaAnalyzer(BaseAnalyzer):
     def __init__(self, model_name: str = "llama3:8B", prompt_version: str = 'v1'):
         self.model_name = model_name
         self.prompt_version = prompt_version
 
-    def analyze(self, article: ArticleScraped) -> dict:
+    def analyze(self, article: Article) -> dict:
         # 1. [Agent 1] Analyst: 분류 및 요약
         # DB의 Category와 Theme Enum 값을 문자열로 추출하여 프롬프트에 주입
         categories = [c.value for c in Category]
@@ -35,7 +35,7 @@ class OllamaAnalyzer(BaseAnalyzer):
         
         return analysis
 
-    def _run_analyst(self, article: ArticleScraped, categories: list, themes: list) -> dict:
+    def _run_analyst(self, article: Article, categories: list, themes: list) -> dict:
         """Agent 1: 추출 및 분류 (DB 스키마 준수)"""
         system_prompt = f"""
         당신은 IT 전문 뉴스 분석가입니다. 아래 지침에 따라 뉴스 본문을 분석하여 오직 유효한 JSON만 출력하세요.
