@@ -23,7 +23,7 @@ class BoanNewsScraper(BaseScraper):
                 url=entry.link,
                 content=self._scrap_body(entry.link),
                 source="BoanNews",
-                published_at=entry.get('published')
+                published_at=self._get_date(entry.get('published'))
             )
             for entry in ff
         ]

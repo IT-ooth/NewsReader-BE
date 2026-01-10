@@ -1,9 +1,10 @@
-from scrapers import BoanNewsScraper, GeekNewsScraper
+from scrapers import BoanNewsScraper, GeekNewsScraper, S2WScraper
 from analyzers import OllamaAnalyzer
 from db import services, engine, init_db
 
 import time
 from sqlmodel import Session
+
 
 def run_curation_loop():
     # 1. 초기화 (DB 테이블 생성 및 엔진 준비)
@@ -12,13 +13,14 @@ def run_curation_loop():
     # 2. 부품 준비
     # 여러 소스를 관리할 수 있도록 리스트로 구성
     scrapers = [
-        BoanNewsScraper('http://www.boannews.com/media/news_rss.xml?skind=1'),
+        BoanNewsScraper('http://www.boannews.com/media/news_rss.xml?skind=1', 3600),
         # BoanNewsScraper('http://www.boannews.com/media/news_rss.xml?skind=5'),
         # BoanNewsScraper('http://www.boannews.com/media/news_rss.xml?skind=7'),
         # BoanNewsScraper('http://www.boannews.com/media/news_rss.xml?skind=3'),
         # BoanNewsScraper('http://www.boannews.com/media/news_rss.xml?skind=2'),
         # BoanNewsScraper('http://www.boannews.com/media/news_rss.xml?skind=6'),
-        GeekNewsScraper('https://news.hada.io/rss/news'),
+        GeekNewsScraper('https://news.hada.io/rss/news', 3600),
+        S2WScraper('https://medium.com/feed/s2wblog', 86400)
     ]
     analyzer = OllamaAnalyzer(model_name="llama3.1:8b")
 
