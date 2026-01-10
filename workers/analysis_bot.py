@@ -12,12 +12,7 @@ def run_analysis_bot():
     while True:
         with Session(engine) as session:
             # 1. 분석이 아직 안 된 기사 하나 가져오기
-            # Analysis 테이블에 해당 article_id가 없는 것 검색
-            statement = select(Article).where(
-                ~select(Analysis).where(Analysis.article_id == Article.id).exists()
-            ).limit(1)
-            
-            target_article = session.exec(statement).first()
+            target_article = services.get_next_article_to_analyze(session)
 
             if not target_article:
                 print("💤 분석할 기사가 없습니다. 대기 중...")
@@ -27,7 +22,6 @@ def run_analysis_bot():
             # 2. AI 분석 수행 (GPU 자원 사용)
             print(f"🤖 분석 시작: {target_article.title}")
             try:
-                # ScrapedItem 형태로 변환하여 전달 (analyzer 호환성)
                 analysis_data = analyzer.analyze(target_article) 
                 
                 if analysis_data:
@@ -35,7 +29,7 @@ def run_analysis_bot():
                     print(f"✅ 분석 완료 및 저장 성공")
             except Exception as e:
                 print(f"❌ 분석 실패: {e}")
-                time.sleep(10) # 실패 시 잠시 휴식
+                time.sleep(10)
 
 if __name__ == "__main__":
     run_analysis_bot()

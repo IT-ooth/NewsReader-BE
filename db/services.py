@@ -55,6 +55,16 @@ def is_already_analyzed(session: Session, url: str) -> bool:
 def get_article_by_url(session: Session, url: str):
     return session.exec(select(Article).where(Article.url == url)).first()
 
+def get_next_article_to_analyze(session: Session) -> Optional[Article]:
+    """분석(Analysis) 데이터가 없는 가장 오래된 기사 하나를 가져옵니다."""
+    statement = (
+        select(Article)
+        .where(~select(Analysis).where(Analysis.article_id == Article.id).exists())
+        .order_by(Article.published_at.asc()) # 오래된 기사부터 처리하거나 desc로 최신부터 처리 가능
+        .limit(1)
+    )
+    return session.exec(statement).first()
+
 # For API service
 def get_card_view_list(
     session: Session, 

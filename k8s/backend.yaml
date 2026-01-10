@@ -15,19 +15,17 @@ spec:
     spec:
       # 호스트의 Ollama에 접근하기 위한 설정 (host.docker.internal을 172.17.0.1로 매핑)
       hostAliases:
-      - ip: "172.17.0.1" # K3s 기본 브리지 IP (안 되면 실제 서버 IP 입력)
+      - ip: "172.17.0.1"
         hostnames:
         - "host.docker.internal"
       containers:
       - name: api
-        # 젠킨스가 빌드해서 올릴 이미지 이름 (본인 ID로 수정 필요!)
         image: soo1278/news-reader-be:latest
         command: ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
         ports:
         - containerPort: 8000
         env:
         - name: DATABASE_URL
-          # 'db' 대신 위에서 만든 Service 이름인 'postgres-service' 사용
           value: "postgresql://postgres:postgres@postgres-service:5432/security_curator"
         - name: OLLAMA_HOST
           value: "http://host.docker.internal:11434"
@@ -68,9 +66,44 @@ spec:
       containers:
       - name: worker
         image: soo1278/news-reader-be:latest
-        command: ["python", "-m", "workers.scraper_bot"]
+        command: ["python", "-m", "workers.new_scraper_bot"]
         env:
         - name: DATABASE_URL
           value: "postgresql://postgres:postgres@postgres-service:5432/security_curator"
         - name: OLLAMA_HOST
           value: "http://host.docker.internal:11434"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: news-reader-analyzer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: news-reader-analyzer
+  template:
+    metadata:
+      labels:
+        app: news-reader-analyzer
+    spec:
+      hostAliases:
+      - ip: "172.17.0.1"
+        hostnames:
+        - "host.docker.internal"
+      containers:
+      - name: analyzer
+        image: soo1278/news-reader-be:latest
+        command: ["python", "-m", "workers.analysis_bot"]
+        env:
+        - name: DATABASE_URL
+          value: "postgresql://postgres:postgres@postgres-service:5432/security_curator"
+        - name: OLLAMA_HOST
+          value: "http://host.docker.internal:11434"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
