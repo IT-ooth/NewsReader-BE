@@ -1,9 +1,10 @@
 pipeline {
     agent { label 'docker-agent' } 
-    
+
     environment {
         DOCKER_HUB_ID = "soo1278" 
         APP_NAME = "news-reader-be"
+        IMAGE_NAME = "${DOCKER_HUB_ID}/${APP_NAME}"
         DOCKER_CREDS = credentials('docker-hub-login')
     }
 
@@ -18,18 +19,17 @@ pipeline {
             steps {
                 container('docker') {
                     script {
-                        echo "🐳 도커 빌드 및 푸시 시작"
+                        echo "🐳 도커 빌드 시작: 버전 ${BUILD_NUMBER}"
                         sh 'echo $DOCKER_CREDS_PSW | docker login -u $DOCKER_CREDS_USR --password-stdin'
-                        sh "docker build -t $DOCKER_HUB_ID/$APP_NAME:${BUILD_NUMBER} ."
-                        sh "docker build -t $DOCKER_HUB_ID/$APP_NAME:latest ."
-                        sh "docker push $DOCKER_HUB_ID/$APP_NAME:${BUILD_NUMBER}"
-                        sh "docker push $DOCKER_HUB_ID/$APP_NAME:latest"
+                        
+                        // 빌드 번호를 태그로 사용하여 "고유한 이미지" 생성
+                        sh "docker build -t ${IMAGE_NAME}:${BUILD_NUMBER} ."
+                        sh "docker tag ${IMAGE_NAME}:${BUILD_NUMBER} ${IMAGE_NAME}:latest"
+                        
+                        sh "docker push ${IMAGE_NAME}:${BUILD_NUMBER}"
+                        sh "docker push ${IMAGE_NAME}:latest"
 
-                        echo "디스크 용량 확보를 위해 로컬 이미지를 삭제합니다..."
-
-                        sh "docker rmi $DOCKER_HUB_ID/$APP_NAME:${BUILD_NUMBER}"
-                        sh "docker rmi $DOCKER_HUB_ID/$APP_NAME:latest"
-
+                        sh "docker rmi ${IMAGE_NAME}:${BUILD_NUMBER} ${IMAGE_NAME}:latest"
                         sh "docker image prune -f"
                     }
                 }
@@ -40,19 +40,30 @@ pipeline {
             steps {
                 container('kubectl') {
                     script {
-                        echo "🚀 K3s 배포 시작..."
+                        echo "🚀 K3s 인프라 및 앱 업데이트..."
                         
-                        // sh "kubectl apply -f k8s/postgres.yaml"
-                        // sh "sleep 5"
-                        // sh "kubectl apply -f k8s/api-cors-middleware.yaml"
-                        // sh "kubectl apply -f k8s/backend.yaml"
-                        // sh "kubectl apply -f k8s/ingress.yaml"
-                        
+                        // 1. 모든 YAML 적용 (DB, Service, Ingress 등 변경사항 반영)
                         sh "kubectl apply -f k8s/"
-                        sh "kubectl set image deployment/news-reader-api api=$DOCKER_HUB_ID/$APP_NAME:${BUILD_NUMBER}"
-                        sh "kubectl set image deployment/news-reader-worker worker=$DOCKER_HUB_ID/$APP_NAME:${BUILD_NUMBER}"
-                        sh "kubectl rollout restart deployment/news-reader-api"
-                        sh "kubectl rollout restart deployment/news-reader-worker"
+
+                        // 2. 고유 태그(${BUILD_NUMBER})를 사용하여 배포 업데이트 강제 수행
+                        // 이렇게 하면 K8s는 이미지가 확실히 바뀌었음을 인지하고 즉시 새 Pod를 띄웁니다.
+                        def apps = [
+                            [deploy: "news-reader-api", container: "api"],
+                            [deploy: "news-reader-worker", container: "worker"],
+                            [deploy: "news-reader-analyzer", container: "analyzer"]
+                        ]
+                        
+                        apps.each { app ->
+                            echo "Updating ${app.deploy} to version ${BUILD_NUMBER}..."
+                            sh "kubectl set image deployment/${app.deploy} ${app.container}=${IMAGE_NAME}:${BUILD_NUMBER}"
+                        }
+
+                        // 3. 배포가 완전히 끝날 때까지 대기 (Health Check)
+                        apps.each { app ->
+                            sh "kubectl rollout status deployment/${app.deploy} --timeout=2m"
+                        }
+                        
+                        echo "✅ 모든 서비스 배포 완료!"
                     }
                 }
             }
