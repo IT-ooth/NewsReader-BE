@@ -13,8 +13,8 @@ def search_any_themes(
     session: Session = Depends(get_session)
 ):
     """
-        api_type: 1 -> any search
-        api_type: 2 -> all search
+        search_type: 1 -> any search
+        search_type: 2 -> all search
     """
     if req.search_type == 1:
         return search_articles_by_any_themes(session, req.themes, req.offset, req.limit)
@@ -23,7 +23,7 @@ def search_any_themes(
     else:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid api_type. Use 1 for ANY or 2 for ALL."
+            detail="Invalid search_type. Use 1 for ANY or 2 for ALL."
         )
 
 @router.post("/theme/list")
