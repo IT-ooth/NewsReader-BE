@@ -77,3 +77,9 @@ class CardNewsRequest(SQLModel):
     level: Optional[Level] = None
     offset: int = Field(default=0, ge=0)
     limit: int = Field(default=20, le=100)
+
+class ThemeSearchRequest(SQLModel):
+    search_type: int = 1
+    themes: List[Theme]  # Enum 유효성 검사 포함
+    offset: int = 0
+    limit: int = 20
