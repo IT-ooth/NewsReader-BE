@@ -7,7 +7,7 @@ from scrapers import BoanNewsScraper, GeekNewsScraper, S2WScraper
 def scraper_thread(scraper):
     """각 스크래퍼별 독립 루프"""
     while True:
-        print(f"📡 {scraper.source} 스크래핑 시작...")
+        print(f"📡 {scraper.__class__.__name__} 스크래핑 시작...")
         with Session(engine) as session:
             try:
                 scraped_items = scraper.collect(session)
